@@ -1,10 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-// const mysql2 = require("mysql2")
 //////////////////////////////////////////////////////////////////////////////////////////////////
 dotenv.config();     
-   
+const userRoute = require("./Routes/userRoutes");
 //////////////////////////////////////////////////////////////////////////////////////////////////
 const app = express();
 app.use(express.json());
@@ -16,23 +15,8 @@ app.use((req, res, next) => {
     next();
 });
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// const dbConnect = mysql2.createConnection({
-//     host     : process.env.HOST,
-//     user     : process.env.USER,
-//     database : process.env.MYSQL_DB,
-//     password : process.env.PASSWORD,                  
-//     port     : process.env.DB_PORT  
-// });
-// ////////////////////////////////////////////////////////////////
-// //connection string path for sql database.//
-// dbConnect.connect(function(error) {
-//     if(error) throw error; {
-//     console.log("My SQL Databse Connected Successfully!"); 
-//     }
-// });
-///////////////////////////////////////////////////////////////////////////////////////////////////
 //Api-Routes.//
-
+app.use("/api/user", userRoute);
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //Error-Message Handler On Server.//
 app.use((err, req, res, next) => {
