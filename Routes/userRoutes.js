@@ -14,4 +14,4 @@ userRoute.post("/login", userController.loginUser);
 //CreateNewUser.//
 userRoute.post("/register", userController.createNewUser);
 ////////////////////////////////////////////////////////////////////////////////////////
-module.exports = userRoute;
+module.exports = userRoute;   
