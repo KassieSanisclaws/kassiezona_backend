@@ -11,7 +11,7 @@ exports.getUserByID = (req, res) => {
             res.send(err);
             console.log("Single User Data", user);
             res.send(user);
-        }
+        }  
     });
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
