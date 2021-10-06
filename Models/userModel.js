@@ -18,7 +18,7 @@ User.getUserByID = (id, result) =>{
             console.log("User fetched successfully");
             result(null, res);
         }
-    });
+    });   
 };
 //////////////////////////////////////////////////////////////////////////////
 module.exports = User;

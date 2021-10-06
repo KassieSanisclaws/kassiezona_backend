@@ -1,9 +1,9 @@
 const User = require("../Models/userModel");
-const bcrypt = require("bcryptjs");
+const bcryptjs = require("bcryptjs");
 const util = require("../utils");
 const jwt = require("jsonwebtoken");
 const dbConnect = require("../SqlConfig/config.db");
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //getUserByID.//
 exports.getUserByID = (req, res) => {
     User.getUserByID(req.params.id, (err, user) => {
@@ -14,7 +14,7 @@ exports.getUserByID = (req, res) => {
         }  
     });
 };
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //createNewUser.//
 exports.createNewUser = (req, res) => {
     const email = req.body.email;
@@ -34,7 +34,7 @@ exports.createNewUser = (req, res) => {
          }else{
              if(result.length == 0) {
 //(4th)TestCase: Bcrypt Code Block Runs Generating The Hash Of The Password An Saulting Rounds.//
-         bcrypt.hash(req.body.password, 10, (e, hash) => {
+         bcryptjs.hash(req.body.password, 10, (e, hash) => {
 //(5th)TestCase: Check For Error And If Error Send Back Message Response.//
              if(e){
                  res.status(500).json({ success: false, message: "Error Occured Creating User." });
@@ -44,6 +44,7 @@ exports.createNewUser = (req, res) => {
         dbConnect.query("INSERT Into users(user_email, user_password) VALUES (?,?)", [req.body.email, hash], (e, result) => {
             if(e){
                 res.status(500).json({ success: false, message: "Error While Creating User" });
+                 console.log(e);
             }else{
                 if(result){
                     return res.status(201).json({ success: true, message: "User Created Successfully" });
@@ -53,7 +54,7 @@ exports.createNewUser = (req, res) => {
     )}}}
   })}
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //loginUser.//
 exports.loginUser = (req, res) => {
     const { email, password } = req.body;
@@ -62,7 +63,7 @@ exports.loginUser = (req, res) => {
       res.send(400).json({ success: false, message: "Please Complete All Field Before Submission" });
    }else{
 //(2nd)TestCase: Connect To SQL Db Query Config.//
-   dbConnect.query("SELECT * FROM users WHERE user_email = ? ", [req.bpdy.email], (err, result) => {
+   dbConnect.query("SELECT * FROM users WHERE user_email = ? ", [req.body.email], (err, result) => {
      if(err){
          res.status(500).send("An Error Occured While Verifying User")
      }else{
@@ -71,7 +72,7 @@ exports.loginUser = (req, res) => {
          res.status(401).json({ success: false, message: "User Does Not Exist" });
      }else{
 //(4th)TestCase: IF User Is Found Call Bcrpyt To Compare Passsword Entered by User in DB.//
-  bcrypt.compare(req.body.password, result[0].user_password, (e, result) => {
+  bcryptjs.compare(req.body.password, result[0].user_password, (e, result) => {
       if(e){
           res.status(500).send("An Error Occurred While Verifying The User" );
       }else{
@@ -86,4 +87,4 @@ exports.loginUser = (req, res) => {
   }}})
  }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
