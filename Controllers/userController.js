@@ -1,8 +1,8 @@
-const User = require("../Models/userModel");
-const bcryptjs = require("bcryptjs");
-const util = require("../utils");
+const User = require("../Models/userModel.js");
+const bcrypt = require("bcryptjs");
+const util  = require("../utils.js");
 const jwt = require("jsonwebtoken");
-const dbConnect = require("../SqlConfig/config.db");
+const dbConnect = require("../SqlConfig/config.db"); 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //getUserByID.//
 exports.getUserByID = (req, res) => {
@@ -17,42 +17,64 @@ exports.getUserByID = (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //createNewUser.//
 exports.createNewUser = (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-//(1)TestCase: check the input fields making sure no empty fields are submitted.//
-    if(email && password == 0 ){
-        res.status(400).json({ success: false, message: "Please Have All Form Fields Completed Before Submission" });
-        }else{
-//(2nd)TestCase: Check If User Is In Database, Performing A Query.//
-   dbConnect.query("Select * From users Where user_email = ?", [req.body.email], (e, result) => {
-        if(e){
-            res.status(500).json({ success: false, message: "An Error Occured While Creating User" });
-         }else{
-//(3rd)TestCase: Check DB For A User in Db With This Email, If User Already Exist-Send Back Error Response.//
-            if(result.length == 1){
-            res.status(401).json({ success: false, message: "User Already In Use " });
-         }else{
-             if(result.length == 0) {
-//(4th)TestCase: Bcrypt Code Block Runs Generating The Hash Of The Password An Saulting Rounds.//
-         bcryptjs.hash(req.body.password, 10, (e, hash) => {
-//(5th)TestCase: Check For Error And If Error Send Back Message Response.//
-             if(e){
-                 res.status(500).json({ success: false, message: "Error Occured Creating User." });
-             }else{
-//(6th)TestCase: This Brings The Stored Hash Password Within The Hash Variable. This Now Runs SQL Query Placing The Registered New Created USer Into The DB.//
-                 if(hash){
-        dbConnect.query("INSERT Into users(user_email, user_password) VALUES (?,?)", [req.body.email, hash], (e, result) => {
-            if(e){
-                res.status(500).json({ success: false, message: "Error While Creating User" });
-                 console.log(e);
-            }else{
-                if(result){
-                    return res.status(201).json({ success: true, message: "User Created Successfully" });
-                }
-            }})
-        }}}
-    )}}}
-  })}
+//TEST-CASE[1]: (construct constant of variables from form).//
+//Destructured variable constant below for less declarations of the same variables.//
+ const {user_name, user_email, user_password, user_confirmPassword } = new User({
+        user_name: req.body.user_name,
+        user_email: req.body.user_email,
+        user_password: req.body.user_password,
+        user_confirmPassword: req.body.user_confirmPassword
+    });
+//TEST-CASE[2]: (if statment checking each input field).//(WORKING)
+//Checking All Input Fields Of Empty Data Being submitted Into DataBase.//
+    if(user_name == req.body.user_name < 0){
+        res.status(400).json({ success: false, message: "Name Field Must Be Completed Before Submitting!" }); 
+       }else{
+    if(user_email == req.body.user_email < 0){
+      res.status(400).json({ success: false, message: "Email Field Must Be Completed Before Submitting!" });
+       }else{
+    if(user_password == req.body.user_password < 0){
+      res.status(400).json({ success: false, message: "Password Field Must Be Completed Before Submitting!" });
+      console.log(user_password);
+       }else
+    if(user_confirmPassword == req.body.user_confirmPassword < 0){
+      res.status(400).json({ success: false, message: "ConfirmPassword Field Must Be Completed Before Submitting!" });
+      console.log(user_confirmPassword);
+    }
+//TEST-CASE[3]: (SQL Query).//(WORKING)
+//Do Sql Query of email checking if there is already a user with that email in the database.//  
+ dbConnect.query("SELECT * FROM `users` WHERE user_email = ?",[user_email], (err, reqDataResult) => {
+    if(err){ 
+      res.status(500).json({ success: false, message: "An Error Occured While Creating User" });
+      }else{
+    if(reqDataResult.length > 1){
+      res.status(401).json({ success: false, message: "User Email Already In Use! "});
+      console.log(reqDataResult)
+      }else{
+    if(reqDataResult.length == 0){
+//TEST-CASE[4]:(Bcrypt Code).//(WORKING)
+//Bcrypt Code Block Runs Generating The Hash Of The Password An Saulting Rounds.//        
+ bcrypt.hash("user_password", 10, (err, hash) => {
+    if(err){
+      res.status(500).json({ success: false, message: "Error Occured Creating User!." });
+      console.log(err);
+      }else{
+    if(hash){
+//TEST-CASE[5]:(SQL Query INSERT INTO users table).//()
+//SQL Query INSERT INTO DB All Fields From Registration Form Into DB Columns.//
+ dbConnect.query("INSERT INTO `users` (user_name, user_email, user_password) VALUES (?,?,?)", [user_name, user_email, hash ], (err, reqDataResult) => { 
+    if(err){
+      res.status(500).json({ success: false, message: "Error Occured Inserting User!" });
+      console.log(err);
+    }else if(reqDataResult){
+      res.status(201).json({ success: true, message: "User Created Successfully!" });
+      console.log(reqDataResult);
+      }})
+    }
+  }})      
+}
+}}})
+}}
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //loginUser.//
@@ -72,7 +94,7 @@ exports.loginUser = (req, res) => {
          res.status(401).json({ success: false, message: "User Does Not Exist" });
      }else{
 //(4th)TestCase: IF User Is Found Call Bcrpyt To Compare Passsword Entered by User in DB.//
-  bcryptjs.compare(req.body.password, result[0].user_password, (e, result) => {
+  bcrypt.compare(req.body.password, result[0].user_password, (e, result) => {
       if(e){
           res.status(500).send("An Error Occurred While Verifying The User" );
       }else{

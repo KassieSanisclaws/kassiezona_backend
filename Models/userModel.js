@@ -2,11 +2,13 @@ const dbConnect = require("../SqlConfig/config.db");
 ////////////////////////////////////////////////////////////////////////////////
 class User {
     constructor(user){
+    this.user_name = user.user_name;
     this.user_email = user.user_email;
     this.user_password = user.user_password;
+    this.user_confirmPassword = user.user_confirmPassword;
   }
-
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 //SQL db getUserByID.//
 User.getUserByID = (id, result) =>{
@@ -21,4 +23,5 @@ User.getUserByID = (id, result) =>{
     });   
 };
 //////////////////////////////////////////////////////////////////////////////
+//SQL db create new user.//
 module.exports = User;

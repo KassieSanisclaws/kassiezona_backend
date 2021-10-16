@@ -1,12 +1,13 @@
 const express = require("express");
 const userRoute = express.Router();
 const userController = require("../Controllers/userController");
+const validateRegister = require("../MiddleWare/userMiddleWare");
 ///////////////////////////////////////////////////////////////////////////////////////
 //getUserList.//
 // userRoute.get("/", userController.getUserList);
 /////////////////////////////////////////////////////
 //getUserByID.//
-userRoute.get("/:id", userController.getUserByID);
+userRoute.get("/:id",  userController.getUserByID);
 /////////////////////////////////////////////////////
 //LoginUser.//
 userRoute.post("/login", userController.loginUser);
