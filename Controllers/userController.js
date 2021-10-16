@@ -71,7 +71,7 @@ exports.createNewUser = (req, res) => {
       console.log(reqDataResult);
       }})
     }
-  }})      
+  }})         
 }
 }}})
 }}
