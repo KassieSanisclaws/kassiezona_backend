@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");                                                                                                                                
-const cors = require("cors");                                                                                                          
+const cors = require("cors");                                                                                                                                                                                          
 //////////////////////////////////////////////////////////////////////////////////////////////////
 dotenv.config();     
 const userRoute = require("./Routes/userRoutes");
@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Header", "Content-Type, Acceptm X-Requested-With, Origin");
+    res.setHeader("Access-Control-Allow-Header", "Content-Type, Acceptm X-Requested-With, Origin");                                                              
     next();
 });                                                                                                                                                                                                                                                                       
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 app.use("/api/user", userRoute);                                                                                                                                                                           
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //Error-Message Handler On Server.//                                                                                                                                                                                                   
-app.use((err, req, res, next) => {                                                                                                                                                                                                                              
+app.use((err, req, res, next) => {                                                                                                                                                                                                                                                                        
     res.status(500).send({ message: err.message });                           
 });              
 /////////////////////////////////////////////////////////////////////////////////////////////////

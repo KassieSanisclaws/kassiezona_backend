@@ -1,6 +1,6 @@
 const User = require("../Models/userModel.js");
 const bcrypt = require("bcryptjs");
-const util  = require("../utils.js");
+const generateToken  = require("../utils.js");
 const jwt = require("jsonwebtoken");
 const dbConnect = require("../SqlConfig/config.db"); 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,11 +35,9 @@ exports.createNewUser = (req, res) => {
        }else{
     if(user_password == req.body.user_password < 0){
       res.status(400).json({ success: false, message: "Password Field Must Be Completed Before Submitting!" });
-      console.log(user_password);
        }else
     if(user_confirmPassword == req.body.user_confirmPassword < 0){
       res.status(400).json({ success: false, message: "ConfirmPassword Field Must Be Completed Before Submitting!" });
-      console.log(user_confirmPassword);
     }
 //TEST-CASE[3]: (SQL Query).//(WORKING)
 //Do Sql Query of email checking if there is already a user with that email in the database.//  
@@ -47,28 +45,26 @@ exports.createNewUser = (req, res) => {
     if(err){ 
       res.status(500).json({ success: false, message: "An Error Occured While Creating User" });
       }else{
-    if(reqDataResult.length > 1){
+//TEST-CASE[4]: (if statement).//(WORKING)
+//Checks If User Already in DataBase.//
+    if(reqDataResult.length == 1){
       res.status(401).json({ success: false, message: "User Email Already In Use! "});
-      console.log(reqDataResult)
       }else{
     if(reqDataResult.length == 0){
-//TEST-CASE[4]:(Bcrypt Code).//(WORKING)
+//TEST-CASE[5]:(Bcrypt Code).//(WORKING)
 //Bcrypt Code Block Runs Generating The Hash Of The Password An Saulting Rounds.//        
  bcrypt.hash("user_password", 10, (err, hash) => {
     if(err){
       res.status(500).json({ success: false, message: "Error Occured Creating User!." });
-      console.log(err);
       }else{
     if(hash){
-//TEST-CASE[5]:(SQL Query INSERT INTO users table).//()
+//TEST-CASE[6]:(SQL Query INSERT INTO users table).//(WORKING)
 //SQL Query INSERT INTO DB All Fields From Registration Form Into DB Columns.//
  dbConnect.query("INSERT INTO `users` (user_name, user_email, user_password) VALUES (?,?,?)", [user_name, user_email, hash ], (err, reqDataResult) => { 
     if(err){
       res.status(500).json({ success: false, message: "Error Occured Inserting User!" });
-      console.log(err);
     }else if(reqDataResult){
-      res.status(201).json({ success: true, message: "User Created Successfully!" });
-      console.log(reqDataResult);
+      res.status(201).send({ success: true, authToken: generateToken({ user: user_email})});  
       }})
     }
   }})         
@@ -79,34 +75,43 @@ exports.createNewUser = (req, res) => {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //loginUser.//
 exports.loginUser = (req, res) => {
-    const { email, password } = req.body;
-//(1st)TestCase: Check The Email And Password Fields FOr Empty Submission.//
-   if(email & password == 0){
-      res.send(400).json({ success: false, message: "Please Complete All Field Before Submission" });
-   }else{
-//(2nd)TestCase: Connect To SQL Db Query Config.//
-   dbConnect.query("SELECT * FROM users WHERE user_email = ? ", [req.body.email], (err, result) => {
-     if(err){
-         res.status(500).send("An Error Occured While Verifying User")
-     }else{
-//(3rd)TestCase: If User  Does Not Exist In SQL DB.//
-     if(result.length == 0){
-         res.status(401).json({ success: false, message: "User Does Not Exist" });
-     }else{
-//(4th)TestCase: IF User Is Found Call Bcrpyt To Compare Passsword Entered by User in DB.//
-  bcrypt.compare(req.body.password, result[0].user_password, (e, result) => {
-      if(e){
-          res.status(500).send("An Error Occurred While Verifying The User" );
-      }else{
-//(5th)TestCase: Compare Generate Result.//
-    if(result){
-        return res.status(200).send({ succcess: true, authToken: util.generateToken({ user: req.body.email }),
-    })
+//TEST-CASE[1]:(Variables)-deconstruct.//(WORKING)
+//De-construct variables to hold the req.body and can be called within the code easily.//
+  const { user_email, user_password } = {
+        user_email: req.body.user_email,
+        user_password: req.body.user_password };
+//TEST-CASE[2]:(if statement).//(WORKING)
+//If Statement checking user_email and user-password fields before submission.//
+  if(user_email == req.body.user_email < 0){
+       res.status(400).json({ success: false, message: "Must Have Email Field Complete Before Submitting!" });
+       }else{
+  if(user_password == req.body.user_password < 0){
+       res.status(400).json({ success: false, message: "Must Have Password Field Completed Before Submitting!." });
+       }else{
+//TEST-CASE[3]:(SQL Query).//(WORKING)
+//Sql Query Checking The DataBase By user_email Returning (err, results from search).//
+ dbConnect.query("SELECT * FROM `users` WHERE user_email = ?", [user_email], (err, reqResult) => {
+    if(err){
+       res.status(500).json({ success: false, message: "Error Occured Perfoming Request!" });
+       }else{
+//TEST-CASE[4]:(is statement).//(WORKING)
+//If Statement Checking For A User By user_email in DataBase Returning False If No User Is Found By user_email.//
+    if(reqResult.length == 0){
+      res.status(401).json({ success: false, message: "User Not Found!" });
     }else{
-//(6th)TestCase: Incorrect Password.//
-        return res.status(401).send("The Password Is Incorrect"); 
-     }}})
+//TEST-CASE[5]:(Bcrypt).//(WORKING)
+//Bcrypt Comparing Password Fopr Validation./// 
+ bcrypt.compare("user_password", reqResult[0].user_password, (err, result) => {
+    if(err){
+      res.status(500).json({ success: false, message: "Error Occured Validating!" });
+      console.log(err);
+    }else{
+//TEST-CASE[6]:(if statement).//(WORKING)
+//If Statement Returing Response Of Successful logIn.//
+      if(result){
+        res.status(200).send({ success: true, authToken: generateToken({user: user_password})});
+      }}})
   }}})
- }
+}}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

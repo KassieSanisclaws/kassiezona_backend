@@ -1,7 +1,6 @@
 const express = require("express");
 const userRoute = express.Router();
 const userController = require("../Controllers/userController");
-const validateRegister = require("../MiddleWare/userMiddleWare");
 ///////////////////////////////////////////////////////////////////////////////////////
 //getUserList.//
 // userRoute.get("/", userController.getUserList);
