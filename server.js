@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Header", "Content-Type, Acceptm X-Requested-With, Origin");                                                              
+    res.setHeader("Access-Control-Allow-Header", "Content-Type, Acceptm X-Requested-With, Origin");                                                                                        
     next();
 });                                                                                                                                                                                                                                                                       
 ///////////////////////////////////////////////////////////////////////////////////////////////////

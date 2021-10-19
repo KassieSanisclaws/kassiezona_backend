@@ -1,6 +1,6 @@
 const User = require("../Models/userModel.js");
-const bcrypt = require("bcryptjs");
-const generateToken  = require("../utils.js");
+const bcryptjs = require("bcryptjs");
+const util  = require("../utils.js");
 const jwt = require("jsonwebtoken");
 const dbConnect = require("../SqlConfig/config.db"); 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ exports.createNewUser = (req, res) => {
     if(reqDataResult.length == 0){
 //TEST-CASE[5]:(Bcrypt Code).//(WORKING)
 //Bcrypt Code Block Runs Generating The Hash Of The Password An Saulting Rounds.//        
- bcrypt.hash("user_password", 10, (err, hash) => {
+ bcryptjs.hash(user_password, 10, (err, hash) => {
     if(err){
       res.status(500).json({ success: false, message: "Error Occured Creating User!." });
       }else{
@@ -64,8 +64,9 @@ exports.createNewUser = (req, res) => {
     if(err){
       res.status(500).json({ success: false, message: "Error Occured Inserting User!" });
     }else if(reqDataResult){
-      res.status(201).send({ success: true, authToken: generateToken({ user: user_email})});  
-      }})
+      res.status(201).send({ success: true, authToken: generateToken({ user: user_email })});  
+      }
+    })
     }
   }})         
 }
@@ -101,16 +102,19 @@ exports.loginUser = (req, res) => {
     }else{
 //TEST-CASE[5]:(Bcrypt).//(WORKING)
 //Bcrypt Comparing Password Fopr Validation./// 
- bcrypt.compare("user_password", reqResult[0].user_password, (err, result) => {
+ bcryptjs.compare(user_password, reqResult[0].user_password, (err, result) => {
     if(err){
-      res.status(500).json({ success: false, message: "Error Occured Validating!" });
       console.log(err);
+      res.status(500).json({ success: false, message: "Error Occured Validating!" });
     }else{
 //TEST-CASE[6]:(if statement).//(WORKING)
 //If Statement Returing Response Of Successful logIn.//
       if(result){
-        res.status(200).send({ success: true, authToken: generateToken({user: user_password})});
-      }}})
+        res.status(200).send({ success: true, authToken: generateToken({ user: user_email })});
+      }else{
+        res.status(401).send({ success: false, message: "Password Incorrect!"});
+      }
+    }})
   }}})
 }}
 }
